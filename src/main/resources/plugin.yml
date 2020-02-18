@@ -1,10 +1,10 @@
-name: NBTEdit
-description: NBTEdit
+name: ItemDrop
+description: ItemDrop
 author: Color_yr
-main: Color_yr.NBTEdit.NBTEdit
+main: Color_yr.ItemDrop.ItemDrop
 version: 1.0.0
 api-version: 1.13
 commands:
     nbt:
-        usage: /NBTEdit help
-        permission: NBTEdit.admin
+        usage: /item help
+        permission: ItemDrop.admin

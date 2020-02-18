@@ -59,7 +59,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId "HeartAge"
-            artifactId "NBTEdit"
+            artifactId "ItemDrop"
             version "$majorVersion.$minorVersion-SNAPSHOT"
             from components.java
         }

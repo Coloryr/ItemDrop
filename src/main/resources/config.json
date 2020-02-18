@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0",
+  "DropProbability": 50,
+  "NeedItem": 10,
+  "CostItem": 3,
+  "Item": "Stone",
+  "NBT": []
+}

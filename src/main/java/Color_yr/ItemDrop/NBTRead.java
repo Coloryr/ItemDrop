@@ -1,10 +1,10 @@
-package Color_yr.NBTEdit;
+package Color_yr.ItemDrop;
 
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
-public class NBT_Get {
+public class NBTRead {
     public static NBTTagCompound NBT_get(ItemStack item) {
         net.minecraft.server.v1_15_R1.ItemStack NMSItem = CraftItemStack.asNMSCopy(item);
         return NMSItem.getOrCreateTag();
