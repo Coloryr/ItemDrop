@@ -1,0 +1,10 @@
+name: NBTEdit
+description: NBTEdit
+author: Color_yr
+main: Color_yr.NBTEdit.NBTEdit
+version: 1.0.0
+api-version: 1.13
+commands:
+    nbt:
+        usage: /NBTEdit help
+        permission: NBTEdit.admin
