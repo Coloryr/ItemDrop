@@ -28,18 +28,6 @@ public class ItemDrop extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new Event(), this);
 
-        try {
-            Material material = Material.getMaterial(MainConfig.getItem());
-            if (material == null) {
-                log.warning("§d[ItemDrop]§c没有找到物品：" + MainConfig.getItem());
-            } else {
-                Item = material;
-            }
-        } catch (Exception e) {
-            log.warning("§d[ItemDrop]§c发生错误");
-            e.printStackTrace();
-        }
-
         Bukkit.getPluginCommand("item").setExecutor(new Command());
         Bukkit.getPluginCommand("item").setTabCompleter(new Command());
 

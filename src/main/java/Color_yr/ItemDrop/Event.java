@@ -26,9 +26,10 @@ public class Event implements Listener {
     //检查物品个数
     private int haveItem(PlayerInventory inventory) {
         int count = 0;
-        NBTTagCompound NBT;
         Material material;
         for (ItemStack item : inventory) {
+            if (item == null)
+                continue;
             material = item.getType();
             if (material.equals(ItemDrop.Item)) {
                 if (!ItemDrop.MainConfig.getNBT().isEmpty()) {
@@ -42,9 +43,12 @@ public class Event implements Listener {
     }
 
     //删除物品
-    private void removeItem(PlayerInventory inventory, int cost) {
+    private List<ItemStack> removeItem(List<ItemStack> inventory, int cost) {
         Material material;
+        List<ItemStack> items = new ArrayList<>(inventory);
         for (ItemStack item : inventory) {
+            if (item == null)
+                continue;
             material = item.getType();
             if (material.equals(ItemDrop.Item)) {
                 if (!ItemDrop.MainConfig.getNBT().isEmpty()) {
@@ -52,46 +56,95 @@ public class Event implements Listener {
                         continue;
                 }
                 int a = item.getAmount();
-                inventory.remove(item);
+                items.remove(item);
                 if (a == cost) {
-                    return;
+                    return items;
                 } else if (a > cost) {
                     item.setAmount(a - cost);
-                    inventory.addItem(item);
-                    return;
-                } else if (a < cost) {
+                    items.add(item);
+                    return items;
+                } else {
                     cost -= a;
                 }
                 if (cost == 0)
-                    return;
+                    return items;
             }
         }
+        return items;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    private List<ItemStack> getAllItem(PlayerInventory inventory)
+    {
+        List<ItemStack> items = new ArrayList<>();
+        for (ItemStack item : inventory) {
+            if (item == null)
+                continue;
+            items.add(item);
+        }
+        return items;
+    }
+
+    private ItemStack[] ListTOArray(List<ItemStack> items)
+    {
+        ItemStack[] array = new ItemStack[items.size()];
+        for (int i = 0; i < items.size(); i++) {
+            array[i] = items.get(i);
+        }
+        return array;
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
     public void OnPlayerDeath(PlayerDeathEvent e) {
         Player player = e.getEntity();
+
         int count = haveItem(player.getInventory());
         if (count != 0) {
             if (count >= ItemDrop.MainConfig.getNeedItem()) {
+                List<ItemStack> temps = removeItem(getAllItem(player.getInventory()), ItemDrop.MainConfig.getCostItem());
+                player.getInventory().clear();
+                player.getInventory().addItem(ListTOArray(temps));
                 e.setKeepInventory(true);
-                removeItem(player.getInventory(), ItemDrop.MainConfig.getCostItem());
+                e.getDrops().clear();
             } else {
-                Random random = new Random();
-                removeItem(player.getInventory(), random.nextInt(ItemDrop.MainConfig.getCostItem()));
                 //随机掉落
+                Random random = new Random();
                 double chance = (double) count / (double) ItemDrop.MainConfig.getNeedItem();
-                ItemStack[] items = player.getInventory().getContents();
-                int removeLength = (int) (items.length * chance);
-                Collections.shuffle(Arrays.asList(items));
-                List<ItemStack> removeItems = new ArrayList<>();
-                for (ItemStack item : items) {
+                //清空物品栏
+                player.getInventory().clear();
+                //获取所有掉落的物品
+                List<ItemStack> dropItems = new ArrayList<>(e.getDrops());
+                dropItems = removeItem(dropItems, random.nextInt(ItemDrop.MainConfig.getCostItem()));
+                //保留的物品
+                List<ItemStack> saveItems = new ArrayList<>();
+                //删除掉落石物品
+                Material material;
+                for (ItemStack temp : e.getDrops()) {
+                    material = temp.getType();
+                    if (material.equals(ItemDrop.Item)) {
+                        if (!ItemDrop.MainConfig.getNBT().isEmpty()) {
+                            if (hasNBT(NBTRead.NBT_get(temp)))
+                                continue;
+                        }
+                        dropItems.remove(temp);
+                        saveItems.add(temp);
+                    }
+                }
+                //掉落物数量
+                int removeLength = (int) (dropItems.size() * chance);
+                //打乱
+                Collections.shuffle(dropItems);
+                //获取保留的物品
+                for (ItemStack item : new ArrayList<>(dropItems)) {
                     if (removeLength != 0) {
-                        removeItems.add(item);
+                        saveItems.add(item);
                         removeLength--;
                     }
                 }
-                player.getInventory().removeItem((ItemStack[]) removeItems.toArray());
+                //添加保留物品
+                player.getInventory().addItem(ListTOArray(saveItems));
+                //删除保留的物品
+                e.getDrops().removeAll(saveItems);
+                e.setKeepInventory(true);
             }
         }
     }

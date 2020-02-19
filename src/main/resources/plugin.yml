@@ -5,6 +5,6 @@ main: Color_yr.ItemDrop.ItemDrop
 version: 1.0.0
 api-version: 1.13
 commands:
-    nbt:
+    item:
         usage: /item help
         permission: ItemDrop.admin
