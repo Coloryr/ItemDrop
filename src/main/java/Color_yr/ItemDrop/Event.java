@@ -97,6 +97,12 @@ public class Event implements Listener {
     public void OnPlayerDeath(PlayerDeathEvent e) {
         Player player = e.getEntity();
 
+        if(ItemDrop.MainConfig.isWorld(player.getWorld().getName())) {
+            e.setKeepInventory(true);
+            e.getDrops().clear();
+            return;
+        }
+
         int count = haveItem(player.getInventory());
         if (count != 0) {
             if (count >= ItemDrop.MainConfig.getNeedItem()) {

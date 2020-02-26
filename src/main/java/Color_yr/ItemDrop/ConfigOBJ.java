@@ -5,15 +5,14 @@ import java.util.List;
 
 public class ConfigOBJ {
     private String version;
-    private int DropProbability;
     private int NeedItem;
     private int CostItem;
     private String Item;
     private List<String> NBT;
+    private List<String> World;
 
     public ConfigOBJ() {
         this.version = "1.0.0";
-        this.DropProbability = 50;
         this.Item = "Stone";
         this.NBT = new ArrayList<>();
         this.NeedItem = 10;
@@ -28,10 +27,6 @@ public class ConfigOBJ {
         return NeedItem;
     }
 
-    public int getDropProbability() {
-        return DropProbability;
-    }
-
     public List<String> getNBT() {
         return NBT;
     }
@@ -42,5 +37,9 @@ public class ConfigOBJ {
 
     public String getVersion() {
         return version;
+    }
+
+    public boolean isWorld(String world) {
+        return World.contains(world);
     }
 }
