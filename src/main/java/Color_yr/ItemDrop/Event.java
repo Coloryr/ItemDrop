@@ -97,61 +97,60 @@ public class Event implements Listener {
     public void OnPlayerDeath(PlayerDeathEvent e) {
         Player player = e.getEntity();
 
-        if(ItemDrop.MainConfig.isWorld(player.getWorld().getName())) {
+        if (ItemDrop.MainConfig.isWorld(player.getWorld().getName())) {
+            int count = haveItem(player.getInventory());
+            if (count != 0) {
+                if (count >= ItemDrop.MainConfig.getNeedItem()) {
+                    List<ItemStack> temps = removeItem(getAllItem(player.getInventory()), ItemDrop.MainConfig.getCostItem());
+                    player.getInventory().clear();
+                    player.getInventory().addItem(ListTOArray(temps));
+                    e.setKeepInventory(true);
+                    e.getDrops().clear();
+                } else {
+                    //随机掉落
+                    Random random = new Random();
+                    double chance = (double) count / (double) ItemDrop.MainConfig.getNeedItem();
+                    //清空物品栏
+                    player.getInventory().clear();
+                    //获取所有掉落的物品
+                    List<ItemStack> dropItems = new ArrayList<>(e.getDrops());
+                    dropItems = removeItem(dropItems, random.nextInt(ItemDrop.MainConfig.getCostItem()));
+                    //保留的物品
+                    List<ItemStack> saveItems = new ArrayList<>();
+                    //删除掉落石物品
+                    Material material;
+                    for (ItemStack temp : e.getDrops()) {
+                        material = temp.getType();
+                        if (material.equals(ItemDrop.Item)) {
+                            if (!ItemDrop.MainConfig.getNBT().isEmpty()) {
+                                if (hasNBT(NBTRead.NBT_get(temp)))
+                                    continue;
+                            }
+                            dropItems.remove(temp);
+                            saveItems.add(temp);
+                        }
+                    }
+                    //掉落物数量
+                    int removeLength = (int) (dropItems.size() * chance);
+                    //打乱
+                    Collections.shuffle(dropItems);
+                    //获取保留的物品
+                    for (ItemStack item : new ArrayList<>(dropItems)) {
+                        if (removeLength != 0) {
+                            saveItems.add(item);
+                            removeLength--;
+                        }
+                    }
+                    //添加保留物品
+                    player.getInventory().addItem(ListTOArray(saveItems));
+                    //删除保留的物品
+                    e.getDrops().removeAll(saveItems);
+                    e.setKeepInventory(true);
+                }
+            }
+        } else {
             e.setKeepInventory(true);
             e.getDrops().clear();
-            return;
-        }
-
-        int count = haveItem(player.getInventory());
-        if (count != 0) {
-            if (count >= ItemDrop.MainConfig.getNeedItem()) {
-                List<ItemStack> temps = removeItem(getAllItem(player.getInventory()), ItemDrop.MainConfig.getCostItem());
-                player.getInventory().clear();
-                player.getInventory().addItem(ListTOArray(temps));
-                e.setKeepInventory(true);
-                e.getDrops().clear();
-            } else {
-                //随机掉落
-                Random random = new Random();
-                double chance = (double) count / (double) ItemDrop.MainConfig.getNeedItem();
-                //清空物品栏
-                player.getInventory().clear();
-                //获取所有掉落的物品
-                List<ItemStack> dropItems = new ArrayList<>(e.getDrops());
-                dropItems = removeItem(dropItems, random.nextInt(ItemDrop.MainConfig.getCostItem()));
-                //保留的物品
-                List<ItemStack> saveItems = new ArrayList<>();
-                //删除掉落石物品
-                Material material;
-                for (ItemStack temp : e.getDrops()) {
-                    material = temp.getType();
-                    if (material.equals(ItemDrop.Item)) {
-                        if (!ItemDrop.MainConfig.getNBT().isEmpty()) {
-                            if (hasNBT(NBTRead.NBT_get(temp)))
-                                continue;
-                        }
-                        dropItems.remove(temp);
-                        saveItems.add(temp);
-                    }
-                }
-                //掉落物数量
-                int removeLength = (int) (dropItems.size() * chance);
-                //打乱
-                Collections.shuffle(dropItems);
-                //获取保留的物品
-                for (ItemStack item : new ArrayList<>(dropItems)) {
-                    if (removeLength != 0) {
-                        saveItems.add(item);
-                        removeLength--;
-                    }
-                }
-                //添加保留物品
-                player.getInventory().addItem(ListTOArray(saveItems));
-                //删除保留的物品
-                e.getDrops().removeAll(saveItems);
-                e.setKeepInventory(true);
-            }
         }
     }
 }
